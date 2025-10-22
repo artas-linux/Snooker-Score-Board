@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snooker Score Board by GNG boys</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --background-color: #0a3821;
+        --surface-color: #1a1d22;
+        --primary-text-color: #ffffff;
+        --secondary-text-color: #a0a0a0;
+        --gold-accent: #d4af37;
+        --red-ball: #d92525;
+        --yellow-ball: #f5d800;
+        --green-ball: #008000;
+        --brown-ball: #a52a2a;
+        --blue-ball: #0000ff;
+        --pink-ball: #ffc0cb;
+        --black-ball: #000000;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html, body {
+        height: 100%;
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--background-color);
+        color: var(--primary-text-color);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+         background-image: linear-gradient(rgba(10, 56, 33, 0.85), rgba(10, 56, 33, 0.85)), url('https://www.transparenttextures.com/patterns/felt.png');
+      }
+
+      #root {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100%;
+        padding: 1rem;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 900px;
+        background-color: rgba(26, 29, 34, 0.9);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gold-accent);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        margin-bottom: 0.25rem;
+      }
+      
+      .subtitle {
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: var(--secondary-text-color);
+        margin-bottom: 1rem;
+        font-style: italic;
+      }
+
+      .stopwatch {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #2c313a;
+        padding: 0.75rem;
+        border-radius: 8px;
+        max-width: 250px;
+        margin: 0 auto;
+      }
+      
+      .timer-display {
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+      }
+
+      .timer-controls {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .btn-timer {
+        background-color: #4a515e;
+        color: var(--primary-text-color);
+        padding: 0.25rem 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .scoreboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .player-panel {
+        position: relative;
+        background-color: #2c313a;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+      }
+      
+      .player-panel:not(.active) {
+        cursor: pointer;
+      }
+      
+      .player-panel:not(.active):hover {
+        background-color: #3a404c;
+      }
+
+      .player-panel.active {
+        border-color: var(--gold-accent);
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+      }
+
+      .remove-player {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #4a515e;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+        line-height: 24px;
+        text-align: center;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
+      }
+      .player-panel:hover .remove-player {
+        opacity: 1;
+      }
+      
+      .player-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      }
+      .player-name:hover {
+        background-color: rgba(255,255,255,0.1);
+      }
+      
+      .player-name-input {
+        width: 100%;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        background-color: rgba(0,0,0,0.2);
+        color: white;
+        border: 1px solid var(--gold-accent);
+        border-radius: 4px;
+        text-align: center;
+        padding: 0.25rem;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      .player-score {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--gold-accent);
+      }
+      
+      .player-break, .player-frames {
+        font-size: 1.2rem;
+        color: var(--secondary-text-color);
+        margin-top: 0.5rem;
+      }
+      
+      .game-info {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+      }
+
+      .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .ball-buttons, .action-buttons, .player-management {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: 'Poppins', sans-serif;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      
+      .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      }
+
+      .btn:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+       .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      
+      .btn-ball {
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      }
+
+      .btn[data-color="red"] { background-color: var(--red-ball); }
+      .btn[data-color="yellow"] { background-color: var(--yellow-ball); color: #333; text-shadow: none;}
+      .btn[data-color="green"] { background-color: var(--green-ball); }
+      .btn[data-color="brown"] { background-color: var(--brown-ball); }
+      .btn[data-color="blue"] { background-color: var(--blue-ball); }
+      .btn[data-color="pink"] { background-color: var(--pink-ball); color: #333; text-shadow: none;}
+      .btn[data-color="black"] { background-color: var(--black-ball); border: 1px solid #fff; }
+      
+      .btn-action {
+        background-color: #4a515e;
+        color: var(--primary-text-color);
+      }
+      
+      .btn-action.foul {
+        background-color: var(--red-ball);
+      }
+      
+      .add-player-btn {
+        background-color: var(--green-ball);
+      }
+
+      .foul-mode-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        background-color: rgba(217, 37, 37, 0.1);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--red-ball);
+      }
+
+      .foul-prompt {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-text-color);
+      }
+
+      .foul-ball-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .btn-foul {
+        box-shadow: 0 0 10px rgba(217, 37, 37, 0.7);
+      }
+      
+      .score-fly-animation {
+        position: fixed;
+        left: 0;
+        top: 0;
+        color: var(--gold-accent);
+        font-size: 2rem;
+        font-weight: 700;
+        text-shadow: 0 0 5px black;
+        pointer-events: none;
+        z-index: 1000;
+        transform: translate(var(--start-x), var(--start-y));
+        animation: fly-to-score 0.8s ease-in-out forwards;
+      }
+
+      @keyframes fly-to-score {
+        0% {
+          transform: translate(var(--start-x), var(--start-y)) scale(1.2);
+          opacity: 1;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--end-x), var(--end-y)) scale(0.5);
+          opacity: 0;
+        }
+      }
+
+
+      @media (max-width: 600px) {
+        .app-container {
+          padding: 1rem;
+        }
+        header h1 {
+          font-size: 2rem;
+        }
+        .scoreboard {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+        .player-score {
+          font-size: 3rem;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
